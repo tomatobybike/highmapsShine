@@ -1,0 +1,134 @@
+<!-- 所有地图数据详情见：https://img.hcharts.cn/mapdata/index.html -->
+<script src="js/jquery-1.8.3.min.js"></script>
+<script src="js/highmaps.js"></script>
+<script src="js/exporting.js"></script>
+
+
+
+
+<style type="text/css">
+#container {
+    height: 680px;
+    min-width: 310px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.loading {
+    margin-top: 10em;
+    text-align: center;
+    color: gray;
+}
+
+</style>
+<script src="js/proj4.js"></script>
+<!-- 所有地图数据详情见：https://img.hcharts.cn/mapdata/index.html -->
+<script src="js/gb-all.js"></script>
+<script src="js/cn-all-sar-taiwan.js"></script>
+<button id="addCircle" class="autocompare">Add circle</button>
+<button id="remove" class="autocompare">remove circle</button>
+<div id="container"></div>
+<script>
+$(function () {
+
+	// Initiate the chart
+	var chart = Highcharts.Map({
+		chart: {
+			renderTo: 'container'
+		},
+
+		title: {
+			text: 'Highmaps lat/lon demo'
+		},
+
+		mapNavigation: {
+			enabled: true
+		},
+
+		tooltip: {
+			headerFormat: '',
+			pointFormat: '<b>{point.name}</b><br>Lat: {point.lat}, Lon: {point.lon}'
+		},
+
+		series: [{
+			// Use the gb-all map with no data as a basemap
+			mapData: Highcharts.maps['countries/gb/gb-all'],
+			name: 'Basemap',
+			borderColor: '#A0A0A0',
+			nullColor: 'rgba(200, 200, 200, 0.3)',
+			showInLegend: false
+		}, {
+			name: 'Separators',
+			type: 'mapline',
+			data: Highcharts.geojson(Highcharts.maps['countries/gb/gb-all'], 'mapline'),
+			color: '#707070',
+			showInLegend: false,
+			enableMouseTracking: false
+		}, {
+			// Specify points using lat/lon
+			type: 'mappoint',
+			name: 'Cities',
+			color: Highcharts.getOptions().colors[1],
+			data: [{
+				name: 'Salford',
+				lat: 53.4875235000,
+				lon: -2.2901264000
+			},{
+				name: 'London',
+				lat: 51.507222,
+				lon: -0.1275
+			}, {
+				name: 'Birmingham',
+				lat: 52.483056,
+				lon: -1.893611
+			}]
+		}]
+	});
+	
+	    var point = chart.series[0].data[0],
+        text = chart.renderer.text(
+            'Max',
+            point.plotX + chart.plotLeft + 10,
+            point.plotY + chart.plotTop - 10
+        ).attr({
+            zIndex: 5
+        }).add(),
+        box = text.getBBox();
+		
+	var group = chart.renderer.g().add();
+	var o;
+	$('#addCircle').click(function () {
+		var pos = chart.fromLatLonToPoint({ lat: 51.507222, lon: -0.1275 });
+		o=chart.renderer.circle(chart.xAxis[0].toPixels(pos.x), chart.yAxis[0].toPixels(pos.y), 20).attr({
+			zIndex: 9999,
+			fill: '#FFAB07',
+			'fill-opacity': 1,
+			stroke: '#ff0000',
+			'stroke-width': 10
+		}).add(group).animate({opacity:'0.0','stroke-width': 100},"slow");
+		//group.show();
+		
+		
+		//hideAll();
+		
+		var pos = chart.fromLatLonToPoint({ lat: 52.483056, lon: -1.893611 });
+		o=chart.renderer.circle(chart.xAxis[0].toPixels(pos.x), chart.yAxis[0].toPixels(pos.y), 20).attr({
+			zIndex: 9999,
+			fill: '#FFAB07',
+			'fill-opacity': 1,
+			stroke: '#ff0000',
+			'stroke-width': 10
+		}).add(group).animate({opacity:'0.0','stroke-width': 100},"slow");
+	});
+	var hideAll=function(){
+		setTimeout(function(){
+			o.destroy();
+		},1000);
+	}
+
+	$('#remove').click(function () {
+		o.destroy();
+	});
+
+});
+
+</script>
